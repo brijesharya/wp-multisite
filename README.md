@@ -1,1 +1,1 @@
-Wordpress fpm multisite configuration template
+Wordpress fpm + nginx + mysql containers multisite configuration template
