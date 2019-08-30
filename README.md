@@ -1,1 +1,1 @@
-# wp-multisite
+Wordpress fpm multisite configuration template
