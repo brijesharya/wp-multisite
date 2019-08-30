@@ -3,7 +3,7 @@ services:
   db:
     image: mysql:5.7
     volumes:
-      - /data/db_data/mysql:/var/lib/mysql
+      - ./db_data/mysql:/var/lib/mysql
       - ./mysql-init.d:/docker-entrypoint-initdb.d
     restart: always
     env_file:
@@ -15,9 +15,9 @@ services:
     image: wordpress:5-fpm
     volumes:
        - ./php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
-       - /var/www/site1:/var/www/html
+       - ./site1/wp:/var/www/html
     env_file:
-      ./site/.wp-env
+      ./site1/.wp-env
     depends_on:
       - db
     restart: always
@@ -28,16 +28,42 @@ services:
     depends_on:
       - site1_wp
     volumes:
-      - /var/www/site1:/var/www/html
-      - ./site/nginx:/etc/nginx/conf.d
+      - ./site1/wp:/var/www/html
+      - ./site1/nginx:/etc/nginx/conf.d
     restart: always
     networks:
       - overlay
+
+## Site 2
+  site2_wp:
+    image: wordpress:5-fpm
+    volumes:
+       - ./php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+       - ./site2/wp:/var/www/html
+    env_file:
+      ./site2/.wp-env
+    depends_on:
+      - db
+    restart: always
+    networks:
+      - overlay
+  site2_nginx:
+    image: nginx
+    depends_on:
+      - site2_wp
+    volumes:
+      - ./site2/wp:/var/www/html
+      - ./site2/nginx:/etc/nginx/conf.d
+    restart: always
+    networks:
+      - overlay
+
 ## Common nginx
   nginx:
     image: nginx
     depends_on:
       - site1_nginx
+      - site2_nginx
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/nginx/ssl
@@ -48,6 +74,7 @@ services:
     networks:
       - overlay
 
+## Phpmyadmin for easy DB management
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     depends_on:
