@@ -1,0 +1,65 @@
+version: '3.7'
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - /data/db_data/mysql:/var/lib/mysql
+      - ./mysql-init.d:/docker-entrypoint-initdb.d
+    restart: always
+    env_file:
+      ./env/.mysql-env
+    networks:
+       - overlay
+## Site 1 
+  site1_wp:
+    image: wordpress:5-fpm
+    volumes:
+       - ./php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+       - /var/www/site1:/var/www/html
+    env_file:
+      ./site/.wp-env
+    depends_on:
+      - db
+    restart: always
+    networks:
+      - overlay
+  site1_nginx:
+    image: nginx
+    depends_on:
+      - site1_wp
+    volumes:
+      - /var/www/site1:/var/www/html
+      - ./site/nginx:/etc/nginx/conf.d
+    restart: always
+    networks:
+      - overlay
+## Common nginx
+  nginx:
+    image: nginx
+    depends_on:
+      - site1_nginx
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    networks:
+      - overlay
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_AUTH_TYPE: cookie
+    networks:
+       - overlay
+networks:
+  overlay:
