@@ -54,7 +54,11 @@ services:
       - ./certbot1-var:/var/lib/letsencrypt
       - ./site1/wp:/var/www/html
       - ./logs/site1/certbot:/var/log
-    command: certonly --webroot --staging --webroot-path=/var/www/html --email youremail@abc.com --agree-tos --force-renewal --no-eff-email -d www.example1.com
+### Un-comment below line after testing for actual certificate generation
+#    command: certonly --webroot --webroot-path=/var/www/html --email youremail@abc.com --agree-tos --no-eff-email -d www.example1.com
+### comment below line after initial testing
+    command: certonly --webroot --staging --webroot-path=/var/www/html --email youremail@abc.com --agree-tos --no-eff-email -d www.example1.com
+### Un-comment below line after actual cert generation for renewal
 #    command: renew --dry-run
     networks:
       - overlay
@@ -98,7 +102,11 @@ services:
       - ./certbot2-var:/var/lib/letsencrypt
       - ./site2/wp:/var/www/html
       - ./logs/site2/certbot:/var/log
-    command: certonly --webroot --staging --webroot-path=/var/www/html --email youremail@abc.com --agree-tos --force-renewal --no-eff-email -d www.example2.com
+### Un-comment after testing for actual certificate generation
+#    command: certonly --webroot --webroot-path=/var/www/html --email youremail@abc.com --agree-tos --force-renewal --no-eff-email -d www.example2.com
+### comment below after initial testing
+    command: certonly --webroot --staging --webroot-path=/var/www/html --email youremail@abc.com --agree-tos --no-eff-email -d www.example2.com
+### Un-comment after actual cert generation for renewal
 #    command: renew --dry-run
     networks:
       - overlay
